@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart City Citizen Dashboard</title>
+    <meta name="description" content="A real-time information dashboard for smart city citizens with an AI assistant.">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="background-animation"></div>
+
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <i class="fa-solid fa-city"></i>
+                <h1>Smart City <span>Dashboard</span></h1>
+            </div>
+            <div class="time-display" id="clock">--:--:--</div>
+        </div>
+    </header>
+
+    <main class="dashboard-grid">
+        <!-- Weather Card -->
+        <article class="card weather-card">
+            <div class="card-header">
+                <h2><i class="fa-solid fa-cloud-sun"></i> Live Weather</h2>
+                <button class="refresh-btn" id="refresh-weather" aria-label="Refresh Weather" title="Refresh">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+            </div>
+            <div class="card-content" id="weather-content">
+                <div class="loader"></div>
+            </div>
+        </article>
+
+        <!-- Currency Card -->
+        <article class="card currency-card">
+            <div class="card-header">
+                <h2><i class="fa-solid fa-money-bill-trend-up"></i> Currency Rates</h2>
+                <button class="refresh-btn" id="refresh-currency" aria-label="Refresh Currency" title="Refresh">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+            </div>
+            <div class="card-content" id="currency-content">
+                <div class="loader"></div>
+            </div>
+        </article>
+
+        <!-- Citizen Profile Card -->
+        <article class="card citizen-card">
+            <div class="card-header">
+                <h2><i class="fa-solid fa-id-card"></i> Featured Citizen</h2>
+                <button class="refresh-btn" id="refresh-citizen" aria-label="Refresh Citizen" title="Refresh">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+            </div>
+            <div class="card-content" id="citizen-content">
+                <div class="loader"></div>
+            </div>
+        </article>
+
+        <!-- City Fact Card -->
+        <article class="card fact-card">
+            <div class="card-header">
+                <h2><i class="fa-solid fa-lightbulb"></i> Fact of the Day</h2>
+                <button class="refresh-btn" id="refresh-fact" aria-label="Refresh Fact" title="Refresh">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+            </div>
+            <div class="card-content" id="fact-content">
+                <div class="loader"></div>
+            </div>
+        </article>
+    </main>
+
+    <!-- Chatbot Floating Widget -->
+    <div class="chatbot-wrapper">
+        <div class="chat-window" id="chat-window">
+            <div class="chat-header">
+                <div class="chat-title">
+                    <i class="fa-solid fa-robot"></i> City Assistant
+                </div>
+                <div class="chat-actions">
+                    <button id="close-chat-btn" title="Close"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+
+            <div class="chat-messages" id="chat-messages">
+                <div class="message ai-message">
+                    Hello! I'm your Smart City Assistant. I can answer questions about the current weather, currency
+                    rates, our featured citizen, and today's city fact. What would you like to know?
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chat-input" placeholder="Ask about the dashboard info..." autocomplete="off">
+                <button id="send-btn"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+        <button class="chat-fab" id="chat-fab" aria-label="Open Chat">
+            <i class="fa-solid fa-comment-dots"></i>
+        </button>
+    </div>
+
+    <script src="env-config.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
