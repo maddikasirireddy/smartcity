@@ -108,7 +108,14 @@
     </div>
 
     <script src="env-config.js"></script>
-    <script src="script.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "@openrouter/sdk": "https://esm.sh/@openrouter/sdk"
+            }
+        }
+    </script>
+    <script type="module" src="script.js"></script>
 </body>
 
 </html>
