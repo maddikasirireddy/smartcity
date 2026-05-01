@@ -240,8 +240,8 @@ async function handleSendMessage() {
 
     // Read token securely from Vite environment variables (sourced from .env file)
     let token = "";
-    if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.HF_TOKEN) {
-        token = import.meta.env.HF_TOKEN;
+    if (typeof import.meta !== 'undefined' && import.meta.env) {
+        token = import.meta.env.VITE_HF_TOKEN || import.meta.env.HF_TOKEN;
     }
 
     // Graceful error strictly enforcing variable presence
