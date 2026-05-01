@@ -218,19 +218,19 @@ function appendMessage(role, text) {
 }
 
 async function query(data, token) {
-	const response = await fetch(
-		"https://router.huggingface.co/v1/chat/completions",
-		{
-			headers: {
-				Authorization: `Bearer ${token}`,
-				"Content-Type": "application/json",
-			},
-			method: "POST",
-			body: JSON.stringify(data),
-		}
-	);
-	const result = await response.json();
-	return result;
+    const response = await fetch(
+        "https://router.huggingface.co/v1/chat/completions",
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            method: "POST",
+            body: JSON.stringify(data),
+        }
+    );
+    const result = await response.json();
+    return result;
 }
 
 // Send Message Handler
@@ -240,8 +240,8 @@ async function handleSendMessage() {
 
     // Read token securely from Vite environment variables (sourced from .env file)
     let token = "";
-    if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_HF_TOKEN) {
-        token = import.meta.env.VITE_HF_TOKEN;
+    if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.HF_TOKEN) {
+        token = import.meta.env.HF_TOKEN;
     }
 
     // Graceful error strictly enforcing variable presence
