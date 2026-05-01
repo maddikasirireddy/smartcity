@@ -1,3 +1,5 @@
+
+
 /* Data Store for Live Context */
 let dashboardData = {
     weather: null,
@@ -215,29 +217,20 @@ function appendMessage(role, text) {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-async function queryLLM(data, token) {
-    // Dynamically support OpenRouter tokens if detected, else fallback to HF
-    const isOpenRouter = token.startsWith('sk-or');
-    const endpoint = isOpenRouter
-        ? "https://openrouter.ai/api/v1/chat/completions"
-        : "https://router.huggingface.co/v1/chat/completions";
-
-    const response = await fetch(endpoint, {
-        headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json",
-            "HTTP-Referer": window.location.href, // Required for OpenRouter
-            "X-Title": "Smart City Dashboard"
-        },
-        method: "POST",
-        body: JSON.stringify(data),
-    });
-
-    if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`API Error ${response.status}: ${errorText}`);
-    }
-    return response.json();
+async function query(data, token) {
+	const response = await fetch(
+		"https://router.huggingface.co/v1/chat/completions",
+		{
+			headers: {
+				Authorization: `Bearer ${token}`,
+				"Content-Type": "application/json",
+			},
+			method: "POST",
+			body: JSON.stringify(data),
+		}
+	);
+	const result = await response.json();
+	return result;
 }
 
 // Send Message Handler
@@ -245,22 +238,14 @@ async function handleSendMessage() {
     const text = chatInput.value.trim();
     if (!text) return;
 
-    // Read token gracefully: supports exact process.env integration on real deployment
-    let token = "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";
-    try {
-        if (typeof process !== 'undefined' && process.env && (process.env.HF_TOKEN || process.env.VITE_HF_TOKEN)) {
-            token = process.env.HF_TOKEN || process.env.VITE_HF_TOKEN;
-        }
-    } catch (e) { }
-
-    // Fallback: Use the newly injected Local Development bridge file if available
-    if (!token && typeof window !== 'undefined' && window.ENV_LOCAL) {
-        token = window.ENV_LOCAL.HF_TOKEN;
+    // Read token securely from Vite environment variables (sourced from .env file)
+    let token = "";
+    if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_HF_TOKEN) {
+        token = import.meta.env.VITE_HF_TOKEN;
     }
 
     // Graceful error strictly enforcing variable presence
     if (!token) {
-        indicator.remove();
         appendMessage('ai', "Authentication Error: Token missing! Please verify your deployment settings!");
         return;
     }
@@ -326,35 +311,36 @@ async function handleSendMessage() {
     ];
 
     try {
-        // Automatically translate the requested model logic into OpenRouter's specific model string syntax if necessary
-        const isOpenRouter = token.startsWith('sk-or');
-        const targetModel = isOpenRouter ? "deepseek/deepseek-r1" : "deepseek-ai/DeepSeek-R1:novita";
-
-        const result = await queryLLM({
-            model: targetModel,
+        const result = await query({
             messages: messagesPayload,
-            max_tokens: 300
+            model: "deepseek-ai/DeepSeek-V4-Pro"
         }, token);
 
-        indicator.remove();
+        if (indicator.parentNode) indicator.remove();
 
-        if (result.choices && result.choices.length > 0) {
-            let aiText = result.choices[0].message.content;
+        // Create the message div to stream the response into
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message ai-message`;
+        chatMessages.appendChild(msgDiv);
 
-            // Clean up DeepSeek reasoning tags if they leak into content
-            aiText = aiText.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
-
-            appendMessage('ai', aiText);
-
-            // Maintain History (limit to last 10 messages to save context limit)
-            conversationHistory.push({ role: 'user', content: text });
-            conversationHistory.push({ role: 'assistant', content: aiText });
-            if (conversationHistory.length > 10) conversationHistory = conversationHistory.slice(-10);
+        let responseText = "";
+        if (result && result.choices && result.choices.length > 0) {
+            const msg = result.choices[0].message;
+            responseText = msg.content || msg.reasoning_content || JSON.stringify(msg);
         } else {
-            throw new Error("No content received from AI API.");
+            responseText = JSON.stringify(result);
         }
+
+        msgDiv.innerHTML = responseText.replace(/\n/g, '<br>');
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        // Maintain History (limit to last 10 messages to save context limit)
+        conversationHistory.push({ role: 'user', content: text });
+        conversationHistory.push({ role: 'assistant', content: responseText });
+        if (conversationHistory.length > 10) conversationHistory = conversationHistory.slice(-10);
+
     } catch (err) {
-        indicator.remove();
+        if (indicator.parentNode) indicator.remove();
         console.error(err);
         appendMessage('ai', "Error connecting to AI Network: " + err.message);
     }
